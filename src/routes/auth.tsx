@@ -25,7 +25,7 @@ import { GraduationCap, Loader2, MailCheck } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (search: Record<string, unknown>) => ({
-    mode: search.mode === "signup" ? ("signup" as const) : ("signin" as const),
+    mode: search["mode"] === "signup" ? ("signup" as const) : ("signin" as const),
   }),
   head: () => ({
     meta: [
