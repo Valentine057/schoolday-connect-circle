@@ -15,6 +15,13 @@
       "when": 1793475695673,
       "tag": "0001_school_settings_public_read",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793543541995,
+      "tag": "0002_phase_2_academic_schema_subjects_teaching_assignments_enrollments_timetable",
+      "breakpoints": true
     }
   ]
 }
