@@ -1,6 +1,8 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { adminExists, claimAdmin } from "@/lib/admin.functions";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -55,6 +57,7 @@ const MODULES = [
 function Dashboard() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [claiming, setClaiming] = useState(false);
 
   const me = useQuery({
     queryKey: ["me"],
@@ -80,6 +83,28 @@ function Dashboard() {
       };
     },
   });
+
+  const isAdmin = !!me.data?.roles.includes("admin");
+  const adminStatus = useQuery({
+    queryKey: ["admin-exists"],
+    queryFn: () => adminExists(),
+    enabled: !me.isPending && !me.isError,
+  });
+
+  async function handleClaimAdmin() {
+    setClaiming(true);
+    try {
+      await claimAdmin();
+      toast.success("You are now the school admin");
+      await queryClient.invalidateQueries({ queryKey: ["me"] });
+      await queryClient.invalidateQueries({ queryKey: ["admin-exists"] });
+      navigate({ to: "/admin" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not claim the admin role");
+    } finally {
+      setClaiming(false);
+    }
+  }
 
   async function handleSignOut() {
     await queryClient.cancelQueries();
@@ -150,6 +175,24 @@ function Dashboard() {
               {school?.motto ?? ""} — signed in as {me.data?.email}
             </p>
 
+            {adminStatus.data?.exists === false && !isAdmin ? (
+              <Card className="mt-6 border-primary/40 bg-primary/5 card-shadow">
+                <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="flex items-center gap-2 font-medium">
+                      <ShieldCheck className="size-4.5 text-primary" /> Set up your school
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      No admin account exists yet. Claim the admin role to open the Admin Portal and manage students, classes, subjects and staff.
+                    </p>
+                  </div>
+                  <Button className="shrink-0" onClick={handleClaimAdmin} disabled={claiming}>
+                    <ShieldCheck className="size-4" /> {claiming ? "Claiming…" : "Claim admin"}
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : null}
+
             <Card className="mt-6 border-border/60 card-shadow">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
@@ -198,19 +241,36 @@ function Dashboard() {
               These modules open as each phase ships.
             </p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {MODULES.map(({ icon: Icon, title, phase }) => (
-                <Card key={title} className="border-border/60 card-shadow opacity-80 transition-opacity hover:opacity-100">
-                  <CardContent className="flex items-start gap-3 p-4">
-                    <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
-                      <Icon className="size-4.5" />
-                    </span>
-                    <div>
-                      <p className="font-medium leading-tight">{title}</p>
-                      <Badge variant="secondary" className="mt-1.5">Coming — {phase}</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              {MODULES.map(({ icon: Icon, title, phase }) => {
+                const open = title === "Admin Portal" && isAdmin;
+                const card = (
+                  <Card
+                    key={title}
+                    className={
+                      open
+                        ? "border-border/60 card-shadow cursor-pointer transition-colors hover:border-primary/50"
+                        : "border-border/60 card-shadow opacity-80 transition-opacity hover:opacity-100"
+                    }
+                  >
+                    <CardContent className="flex items-start gap-3 p-4">
+                      <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
+                        <Icon className="size-4.5" />
+                      </span>
+                      <div>
+                        <p className="font-medium leading-tight">{title}</p>
+                        <Badge variant="secondary" className="mt-1.5">{open ? "Open" : `Coming — ${phase}`}</Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+                return open ? (
+                  <Link key={title} to="/admin" className="block rounded-xl">
+                    {card}
+                  </Link>
+                ) : (
+                  card
+                );
+              })}
             </div>
           </>
         )}
