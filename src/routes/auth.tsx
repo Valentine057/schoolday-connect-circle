@@ -52,7 +52,7 @@ function AuthPage() {
 
   const [classes, setClasses] = useState<ClassRow[]>([]);
   const [loading, setLoading] = useState(false);
-  const [socialLoading, setSocialLoading] = useState<"google" | "lovable" | null>(null);
+  const [socialLoading, setSocialLoading] = useState(false);
   const [confirmationSent, setConfirmationSent] = useState<string | null>(null);
 
   // Sign-in fields
@@ -116,12 +116,12 @@ function AuthPage() {
     navigate({ to: "/dashboard", replace: true });
   }
 
-  async function handleSocial(provider: "google" | "lovable") {
-    setSocialLoading(provider);
-    const result = await lovable.auth.signInWithOAuth(provider, {
+  async function handleGoogleSignIn() {
+    setSocialLoading(true);
+    const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
     });
-    setSocialLoading(null);
+    setSocialLoading(false);
     if (result.error) {
       toast.error(result.error.message);
       return;
@@ -183,12 +183,9 @@ function AuthPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-2">
-                <Button type="button" variant="outline" onClick={() => handleSocial("google")} disabled={socialLoading !== null}>
-                  {socialLoading === "google" ? <Loader2 className="size-4 animate-spin" /> : "Google"}
-                </Button>
-                <Button type="button" variant="outline" onClick={() => handleSocial("lovable")} disabled={socialLoading !== null}>
-                  {socialLoading === "lovable" ? <Loader2 className="size-4 animate-spin" /> : "Lovable"}
+              <div className="grid grid-cols-1 gap-2">
+                <Button type="button" variant="outline" onClick={handleGoogleSignIn} disabled={socialLoading}>
+                  {socialLoading ? <Loader2 className="size-4 animate-spin" /> : "Google"}
                 </Button>
               </div>
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
