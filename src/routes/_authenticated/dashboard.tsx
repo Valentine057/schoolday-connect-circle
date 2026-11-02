@@ -84,6 +84,28 @@ function Dashboard() {
     },
   });
 
+  const isAdmin = !!me.data?.roles.includes("admin");
+  const adminStatus = useQuery({
+    queryKey: ["admin-exists"],
+    queryFn: () => adminExists(),
+    enabled: !me.isPending && !me.isError,
+  });
+
+  async function handleClaimAdmin() {
+    setClaiming(true);
+    try {
+      await claimAdmin();
+      toast.success("You are now the school admin");
+      await queryClient.invalidateQueries({ queryKey: ["me"] });
+      await queryClient.invalidateQueries({ queryKey: ["admin-exists"] });
+      navigate({ to: "/admin" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not claim the admin role");
+    } finally {
+      setClaiming(false);
+    }
+  }
+
   async function handleSignOut() {
     await queryClient.cancelQueries();
     queryClient.clear();
