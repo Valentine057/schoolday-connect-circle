@@ -1,6 +1,8 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { adminExists, claimAdmin } from "@/server/admin";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -55,6 +57,7 @@ const MODULES = [
 function Dashboard() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [claiming, setClaiming] = useState(false);
 
   const me = useQuery({
     queryKey: ["me"],
