@@ -175,6 +175,24 @@ function Dashboard() {
               {school?.motto ?? ""} — signed in as {me.data?.email}
             </p>
 
+            {adminStatus.data?.exists === false && !isAdmin ? (
+              <Card className="mt-6 border-primary/40 bg-primary/5 card-shadow">
+                <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="flex items-center gap-2 font-medium">
+                      <ShieldCheck className="size-4.5 text-primary" /> Set up your school
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      No admin account exists yet. Claim the admin role to open the Admin Portal and manage students, classes, subjects and staff.
+                    </p>
+                  </div>
+                  <Button className="shrink-0" onClick={handleClaimAdmin} disabled={claiming}>
+                    <ShieldCheck className="size-4" /> {claiming ? "Claiming…" : "Claim admin"}
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : null}
+
             <Card className="mt-6 border-border/60 card-shadow">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
