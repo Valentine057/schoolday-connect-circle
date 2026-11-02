@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Server functions (createServerFn) live in `src/lib/*.functions.ts`, not `src/server/` — import protection blocks `src/server/` from client bundles; server-only helpers belong in `*.server.ts`.
