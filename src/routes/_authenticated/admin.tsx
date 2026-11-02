@@ -521,6 +521,15 @@ function EnrollmentsTab() {
     },
   });
 
+  const classesQ = useQuery({
+    queryKey: ["admin", "classes"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("classes").select("id, name, level").order("name");
+      if (error) throw error;
+      return data as ClassRow[];
+    },
+  });
+
   async function enroll() {
     const session = settingsQ.data?.current_session;
     const term = settingsQ.data?.current_term;
@@ -553,7 +562,7 @@ function EnrollmentsTab() {
           <Select value={classId} onValueChange={setClassId}>
             <SelectTrigger className="w-full"><SelectValue placeholder="Class" /></SelectTrigger>
             <SelectContent>
-              {(await_classes_placeholder(classesQ) ?? []).map((c) => (
+              {(classesQ.data ?? []).map((c) => (
                 <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
               ))}
             </SelectContent>
