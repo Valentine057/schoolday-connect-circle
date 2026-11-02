@@ -241,19 +241,36 @@ function Dashboard() {
               These modules open as each phase ships.
             </p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {MODULES.map(({ icon: Icon, title, phase }) => (
-                <Card key={title} className="border-border/60 card-shadow opacity-80 transition-opacity hover:opacity-100">
-                  <CardContent className="flex items-start gap-3 p-4">
-                    <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
-                      <Icon className="size-4.5" />
-                    </span>
-                    <div>
-                      <p className="font-medium leading-tight">{title}</p>
-                      <Badge variant="secondary" className="mt-1.5">Coming — {phase}</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              {MODULES.map(({ icon: Icon, title, phase }) => {
+                const open = title === "Admin Portal" && isAdmin;
+                const card = (
+                  <Card
+                    key={title}
+                    className={
+                      open
+                        ? "border-border/60 card-shadow cursor-pointer transition-colors hover:border-primary/50"
+                        : "border-border/60 card-shadow opacity-80 transition-opacity hover:opacity-100"
+                    }
+                  >
+                    <CardContent className="flex items-start gap-3 p-4">
+                      <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
+                        <Icon className="size-4.5" />
+                      </span>
+                      <div>
+                        <p className="font-medium leading-tight">{title}</p>
+                        <Badge variant="secondary" className="mt-1.5">{open ? "Open" : `Coming — ${phase}`}</Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+                return open ? (
+                  <Link key={title} to="/admin" className="block rounded-xl">
+                    {card}
+                  </Link>
+                ) : (
+                  card
+                );
+              })}
             </div>
           </>
         )}
