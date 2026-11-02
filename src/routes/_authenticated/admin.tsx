@@ -599,10 +599,6 @@ function EnrollmentsTab() {
   );
 }
 
-function await_classes_placeholder(q: { data?: ClassRow[] }) {
-  return q.data;
-}
-
 /* ---------------- Timetable ---------------- */
 
 function TimetableTab() {
